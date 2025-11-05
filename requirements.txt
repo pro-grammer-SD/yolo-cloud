@@ -1,6 +1,7 @@
 streamlit
 ultralytics
 opencv-python-headless
-numpy
 pillow
-streamlit-camera-input-live
+numpy
+pandas
+torch

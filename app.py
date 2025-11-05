@@ -3,6 +3,7 @@ import numpy as np
 from ultralytics import YOLO
 from PIL import Image
 import pandas as pd
+import io
 
 st.set_page_config(page_title="YOLO Object Detector", layout="centered")
 
@@ -21,8 +22,11 @@ if img_file:
     labels = [names[int(i)] for i in boxes.cls]
     confs = [round(float(c) * 100, 2) for c in boxes.conf]
     df = pd.DataFrame({"Item": labels, "Confidence (%)": confs})
-    df = df.groupby("Item").agg({"Confidence (%)": "mean",}).reset_index()
+    df = df.groupby("Item").agg({"Confidence (%)": "mean"}).reset_index()
     df["Count"] = df["Item"].map(lambda x: f"x{labels.count(x)}" if labels.count(x) > 1 else "")
     st.image(res.plot(), use_container_width=True)
     st.dataframe(df, use_container_width=True)
+    csv = io.StringIO()
+    df.to_csv(csv, index=False)
+    st.download_button("📥 Download Results as CSV", csv.getvalue(), "detections.csv", "text/csv")
     
