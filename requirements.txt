@@ -1,5 +1,6 @@
 streamlit
 ultralytics
-streamlit-webrtc
 opencv-python-headless
-av
+numpy
+pillow
+streamlit-camera-input-live

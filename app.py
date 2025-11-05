@@ -1,27 +1,21 @@
 import streamlit as st
+from camera_input_live import camera_input_live
 from ultralytics import YOLO
-from streamlit_webrtc import webrtc_streamer, VideoTransformerBase
-import av
 import cv2
+import numpy as np
+from PIL import Image
 
-st.set_page_config(page_title="Live Object Detector", layout="wide")
-st.title("🎯 Live Hitbox Object Detector")
+st.set_page_config(page_title="Live Object Detection", layout="wide")
+st.title("🎯 Live Object Detection")
 
-@st.cache_resource
-def load_model():
-    return YOLO("yolov8n.pt")
+model = YOLO("yolov8n.pt")
 
-model = load_model()
+frame = camera_input_live()
 
-class ObjectDetector(VideoTransformerBase):
-    def transform(self, frame):
-        img = frame.to_ndarray(format="bgr24")
-        results = model(img)
-        annotated = results[0].plot()
-        return av.VideoFrame.from_ndarray(annotated, format="bgr24")
-
-webrtc_streamer(
-    key="object-detection",
-    video_transformer_factory=ObjectDetector,
-    media_stream_constraints={"video": True, "audio": False},
-)
+if frame is not None:
+    img = Image.open(frame)
+    img = np.array(img)
+    results = model.predict(img, conf=0.5, verbose=False)
+    annotated = results[0].plot()
+    st.image(annotated, channels="BGR", use_container_width=True)
+    
